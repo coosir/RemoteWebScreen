@@ -13,7 +13,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"path/filepath"
 	"time"
 )
@@ -27,10 +26,11 @@ type PageData struct {
 }
 
 func init() {
-	win32.HideConsole()
+	// win32.HideConsole()
 }
 
 func main() {
+	fmt.Println("Helptimely Remote Screen (https://helptimely.com)")
 	listenAddress := ":443"
 	// if len(os.Args) == 1 {
 	// 	os.Exit(0)
