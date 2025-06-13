@@ -371,10 +371,10 @@
         img.onload = function () {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            ctx.imageSmoothingEnabled = false;
-            ctx.mozImageSmoothingEnabled = false;
-            ctx.webkitImageSmoothingEnabled = false;
-            ctx.msImageSmoothingEnabled = false;
+            ctx.imageSmoothingEnabled = true;
+            ctx.mozImageSmoothingEnabled = true;
+            ctx.webkitImageSmoothingEnabled = true;
+            ctx.msImageSmoothingEnabled = true;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         };
