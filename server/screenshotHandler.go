@@ -43,7 +43,7 @@ func ScreenshotHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 	wg.Add(1)
 	go func() {
-		ticker := time.NewTicker(33 * time.Millisecond)
+		ticker := time.NewTicker(500 * time.Millisecond)
 		defer ticker.Stop()
 		defer wg.Done()
 		for {

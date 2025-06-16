@@ -8,7 +8,7 @@ import (
 	"math"
 )
 
-var CaptureScreenquality int = 56
+var CaptureScreenquality int = 80
 var mainScreenScale float64
 var assistScreenScale float64
 
