@@ -64,7 +64,14 @@
     let reconnectInterval = 2000;
 
     function connectWebSocket() {
-        const ws = new WebSocket(wsUrl);
+        try {
+            ws = new WebSocket(wsUrl);
+        } catch (error) {
+            console.error('WebSocket 创建失败:', error);
+            // 创建失败时等待后重试
+            reconnectTimer = setTimeout(connectWebSocket, reconnectInterval);
+            return;
+        }
         ws.binaryType = 'arraybuffer';
 
         ws.onopen = function(event) {
