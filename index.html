@@ -199,12 +199,12 @@
     let controlBar = document.querySelector('.top-center-controls');
     let hideTimeout;
     //当鼠标移动到页面顶部中间位置时显示控制条
-    document.addEventListener('mousemove', function(event) {
-        if (event.clientY < 6) { // 顶部6px内为触发区域
-            controlBar.style.display = 'block';
-            clearTimeout(hideTimeout);
-        }
-    });
+    // document.addEventListener('mousemove', function(event) {
+    //     if (event.clientY < 6) { // 顶部6px内为触发区域
+    //         controlBar.style.display = 'block';
+    //         clearTimeout(hideTimeout);
+    //     }
+    // });
 
     // 当鼠标离开控制条时开始计时隐藏
     controlBar.addEventListener('mouseleave', function() {
