@@ -4,8 +4,6 @@ import (
 	"RemoteWebScreen/keyboard"
 	"RemoteWebScreen/server"
 	"RemoteWebScreen/win32"
-	"crypto/tls"
-	"crypto/x509"
 	"embed"
 	"fmt"
 	"html/template"
@@ -30,7 +28,7 @@ func init() {
 
 func main() {
 	fmt.Println("Helptimely Remote Screen (https://helptimely.com)")
-	listenAddress := ":443"
+	listenAddress := ":5000"
 	// if len(os.Args) == 1 {
 	// 	os.Exit(0)
 	// } else if len(os.Args) == 2 && os.Args[1] == "start" {
@@ -39,34 +37,36 @@ func main() {
 	// } else {
 	// 	os.Exit(0)
 	// }
-	certData, _ := templates.ReadFile("certs/server.pem")
-	keyData, _ := templates.ReadFile("certs/server.key")
-	caCert, err := templates.ReadFile("certs/ca.pem")
-	certPool := x509.NewCertPool()
-	certPool.AppendCertsFromPEM(caCert)
-	cert, err := tls.X509KeyPair(certData, keyData)
-	if err != nil {
-		//log.Fatalf("Failed to load key pair: %v", err)
-	}
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		ClientCAs:    certPool,
-		ClientAuth:   tls.NoClientCert,
-	}
-	SimulateDesktopConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}
-	SimulateDesktopListener, err := tls.Listen("tcp", ":0", SimulateDesktopConfig)
+
+	//certData, _ := templates.ReadFile("certs/server.pem")
+	//keyData, _ := templates.ReadFile("certs/server.key")
+	//caCert, err := templates.ReadFile("certs/ca.pem")
+	//certPool := x509.NewCertPool()
+	//certPool.AppendCertsFromPEM(caCert)
+	//cert, err := tls.X509KeyPair(certData, keyData)
+	//if err != nil {
+	//	//log.Fatalf("Failed to load key pair: %v", err)
+	//}
+	//tlsConfig := &tls.Config{
+	//	Certificates: []tls.Certificate{cert},
+	//	ClientCAs:    certPool,
+	//	ClientAuth:   tls.NoClientCert,
+	//}
+	//SimulateDesktopConfig := &tls.Config{
+	//	Certificates: []tls.Certificate{cert},
+	//}
+
+	SimulateDesktopListener, err := net.Listen("tcp", ":0")
 	if err != nil {
 		//log.Printf("Failed to listen on a random port: %v", err)
 	}
-	httpsListener, err := tls.Listen("tcp", listenAddress, tlsConfig)
+	httpListener, err := net.Listen("tcp", listenAddress)
 	if err != nil {
 		//log.Fatalf("Failed to create TLS listener: %v", err)
 	}
 	SimulateDesktopwsPort := SimulateDesktopListener.Addr().(*net.TCPAddr).Port
-	go keyboard.Keylog()
-	http.HandleFunc("/"+listenAddress, func(w http.ResponseWriter, r *http.Request) {
+	//go keyboard.Keylog()
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		contentBytes, err := templates.ReadFile("index.html")
 		if err != nil {
@@ -98,7 +98,7 @@ func main() {
 		}
 	})
 	go func() {
-		if err := http.Serve(httpsListener, nil); err != nil {
+		if err := http.Serve(httpListener, nil); err != nil {
 			//log.Fatalf("Failed to start HTTPS server: %v", err)
 		}
 	}()
