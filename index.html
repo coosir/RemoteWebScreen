@@ -50,7 +50,7 @@
 </style>
 </head>
 <body>
-<img id="screenImage" alt="屏幕画面">
+<img id="screenImage" alt="屏幕画面" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==">
 <canvas id="screenCanvas"></canvas>
 <div id="offlineOverlay">连接已断开，离线状态</div>
 <script src="/static/pako.min.js"></script>
@@ -64,14 +64,7 @@
     let reconnectInterval = 2000;
 
     function connectWebSocket() {
-        try {
-            ws = new WebSocket(wsUrl);
-        } catch (error) {
-            console.error('WebSocket 创建失败:', error);
-            // 创建失败时等待后重试
-            reconnectTimer = setTimeout(connectWebSocket, reconnectInterval);
-            return;
-        }
+        ws = new WebSocket(wsUrl);
         ws.binaryType = 'arraybuffer';
 
         ws.onopen = function(event) {
