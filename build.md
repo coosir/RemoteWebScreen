@@ -1,6 +1,7 @@
 ```shell
-CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o RemoteWebScreen.exe main.go
+# Windows 32位
+GOOS=windows GOARCH=386 go build -ldflags="-s -w" -o HTRS.exe main.go
+# Windows 64位
+GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o HTRS.exe main.go
 ```
-在macOS上跨平台需要：
-brew install mingw-w64
-CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build -ldflags="-s -w" -o RemoteWebScreen.exe main.go
+注意：要支持 Windows 7 的话 Go 版本最高只能是 1.20

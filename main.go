@@ -1,21 +1,16 @@
 package main
 
 import (
-	"RemoteWebScreen/keyboard"
 	"RemoteWebScreen/server"
-	"RemoteWebScreen/win32"
 	"embed"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net"
 	"net/http"
-	"path/filepath"
 	"time"
 )
 
 //go:embed  index.html static/*
-//go:embed certs/server.key certs/server.pem certs/ca.pem
 var templates embed.FS
 
 type PageData struct {
@@ -83,20 +78,20 @@ func main() {
 	fs := http.FS(templates)
 	http.Handle("/static/", http.StripPrefix("/", http.FileServer(fs)))
 	//http.Handle("/", http.FileServer(http.Dir(keyboard.Screen_logPath)))
-	http.HandleFunc("/"+listenAddress+"log", func(w http.ResponseWriter, r *http.Request) {
-		filePath := filepath.Join(keyboard.Screen_logPath, keyboard.Logfilename)
-		content, err := ioutil.ReadFile(filePath)
-		if err != nil {
-		}
-		data := PageData{
-			LogContent: string(content),
-		}
-		tmpl, err := template.New("log").Parse(win32.HtmlTemplate)
-		err = tmpl.Execute(w, data)
-		if err != nil {
-			//http.Error(w, "Error executing HTML template", http.StatusInternalServerError)
-		}
-	})
+	//http.HandleFunc("/"+listenAddress+"log", func(w http.ResponseWriter, r *http.Request) {
+	//	filePath := filepath.Join(keyboard.Screen_logPath, keyboard.Logfilename)
+	//	content, err := ioutil.ReadFile(filePath)
+	//	if err != nil {
+	//	}
+	//	data := PageData{
+	//		LogContent: string(content),
+	//	}
+	//	tmpl, err := template.New("log").Parse(win32.HtmlTemplate)
+	//	err = tmpl.Execute(w, data)
+	//	if err != nil {
+	//		//http.Error(w, "Error executing HTML template", http.StatusInternalServerError)
+	//	}
+	//})
 	go func() {
 		if err := http.Serve(httpListener, nil); err != nil {
 			//log.Fatalf("Failed to start HTTPS server: %v", err)
