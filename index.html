@@ -168,6 +168,22 @@
         border-radius: 0 0 5px 5px; /* 底部圆角 */
         width: 26%;
     }
+    #offlineOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色 */
+        color: #fff;
+        display: none; /* 初始隐藏 */
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        z-index: 2000;
+        user-select: none;
+        pointer-events: none; /* 不阻止事件传递 */
+    }
 </style>
 </head>
 <body>
@@ -182,6 +198,7 @@
 
 </div>
 <canvas id="screenCanvas"></canvas>
+<div id="offlineOverlay">连接已断开，离线状态</div>
 <script src="/static/pako.min.js"></script>
 <script>
     const canvas = document.getElementById('screenCanvas');
@@ -195,6 +212,7 @@
     let isMouseControlEnabled = false;
     let isMouseOverControls = false;
     const controlsDiv = document.querySelector('.controls');
+    const offlineOverlay = document.getElementById('offlineOverlay');
 
     let controlBar = document.querySelector('.top-center-controls');
     let hideTimeout;
@@ -320,8 +338,17 @@
 
         // 可以根据需要执行其他操作
     });
+
+    ws.onclose = function(event) {
+        offlineOverlay.style.display = 'flex';
+    };
+
+    ws.onerror = function(event) {
+        offlineOverlay.style.display = 'flex';
+    };
     ws.onopen = function(event) {
         sendSettings();
+        offlineOverlay.style.display = 'none';
     };
     const qualityRange = document.getElementById('qualityRange');
 
