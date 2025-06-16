@@ -60,6 +60,8 @@
     const wsPort = {{ .WebSocketPort }};
     const wsUrl = `ws://${window.location.hostname}:${wsPort}/SimulateDesktop`;
     const offlineOverlay = document.getElementById('offlineOverlay');
+    let reconnectTimer;
+    let reconnectInterval = 2000;
 
     function connectWebSocket() {
         const ws = new WebSocket(wsUrl);
@@ -68,6 +70,10 @@
         ws.onopen = function(event) {
             sendSettings();
             offlineOverlay.style.display = 'none';
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
+                reconnectTimer = null;
+            }
         };
 
         ws.onmessage = function (event) {
@@ -76,17 +82,20 @@
             }
             const inflatedData = pako.inflate(event.data);
             const imgBlob = new Blob([inflatedData], { type: 'image/jpeg' });
-            const imgUrl = URL.createObjectURL(imgBlob);
-            screenImage.src = imgUrl;
+
             // 释放之前的URL，避免内存泄漏
             if (screenImage._prevUrl) {
                 URL.revokeObjectURL(screenImage._prevUrl);
             }
+
+            const imgUrl = URL.createObjectURL(imgBlob);
+            screenImage.src = imgUrl;
             screenImage._prevUrl = imgUrl;
         };
 
         ws.onclose = function(event) {
             offlineOverlay.style.display = 'flex';
+            attemptReconnect();
         };
 
         ws.onerror = function(event) {
@@ -112,6 +121,13 @@
                 }
             }, 1000);  // 延时1秒关闭WebSocket连接
         });
+    }
+
+    function attemptReconnect() {
+        if (reconnectTimer) return;
+        reconnectTimer = setTimeout(() => {
+            connectWebSocket();
+        }, reconnectInterval);
     }
 
     connectWebSocket();

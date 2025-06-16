@@ -51,7 +51,7 @@ func main() {
 	//	Certificates: []tls.Certificate{cert},
 	//}
 
-	SimulateDesktopListener, err := net.Listen("tcp", ":0")
+	SimulateDesktopListener, err := net.Listen("tcp", ":5001")
 	if err != nil {
 		//log.Printf("Failed to listen on a random port: %v", err)
 	}
