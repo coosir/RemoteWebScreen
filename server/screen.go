@@ -6,7 +6,6 @@ import (
 	"image/jpeg"
 )
 
-var lastScreen []byte
 var currentScreen int
 
 func captureScreen(quality int) ([]byte, error) {
@@ -23,10 +22,10 @@ func captureScreen(quality int) ([]byte, error) {
 		return nil, err
 	}
 	//检测图像变化
-	if bytes.Equal(lastScreen, buf.Bytes()) {
-		return nil, nil // 没有变化
-	}
-	lastScreen = make([]byte, len(buf.Bytes()))
-	copy(lastScreen, buf.Bytes())
+	//if bytes.Equal(lastScreen, buf.Bytes()) {
+	//	return nil, nil // 没有变化
+	//}
+	//lastScreen = make([]byte, len(buf.Bytes()))
+	//copy(lastScreen, buf.Bytes())
 	return buf.Bytes(), nil
 }
